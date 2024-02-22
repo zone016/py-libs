@@ -21,6 +21,17 @@ class Adb:
 
         self.BINARY_PATH = binaries[0]
 
+    def list_devices(self) -> List[str]:
+        result = self._run_command(['devices'])
+        if result.exit_code != 0:
+            return []
+
+        return [
+            line.split('\t')[0]
+            for line in result.stdout
+            if line.strip() and "List of devices attached" not in line
+        ]
+
     def _run_command(
         self, commands: List[str], timeout: int = None
     ) -> CommandResult:

@@ -64,3 +64,31 @@ class TestAdb(TestCase):
         self.assertEqual(len(command_result.stderr), 1)
         self.assertEqual(len(command_result.stdout), 1)
         self.assertEqual(command_result.exit_code, 0)
+
+    @patch('subprocess.run')
+    @patch('py_adb.Adb._discover_from_path')
+    @patch('py_adb.Adb._is_adb_available')
+    def test_list_devices(
+        self,
+        mock_is_adb_available: MagicMock,
+        mock_discover_from_path: MagicMock,
+        mock_run: MagicMock,
+    ) -> None:
+        mock_is_adb_available.return_value = True
+        mock_discover_from_path.return_value = ['1']
+        mock_run.return_value = subprocess.CompletedProcess(
+            args='adb devices',
+            returncode=0,
+            stdout=(
+                'List of devices attached\nemulator-5554\tdevice\n'
+                'emulator-5555\tdevice\nemulator-5556\tdevice\n'
+            ),
+            stderr=None,
+        )
+
+        adb = Adb()
+        devices = adb.list_devices()
+        self.assertEqual(len(devices), 3)
+        self.assertEqual(
+            devices, ['emulator-5554', 'emulator-5555', 'emulator-5556']
+        )

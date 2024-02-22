@@ -1,0 +1,35 @@
+name: Publish commons module
+
+on:
+  push:
+    paths:
+      - "commons/**"
+  workflow_dispatch:
+  
+permissions: 
+  contents: read
+
+jobs:
+  deploy:
+    
+    runs-on: ubuntu-latest
+    
+    steps:
+      - uses: actions/checkout@v4
+        
+      - name: Python set up
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.x'
+          
+      - name: Install dependencies
+        working-directory: commons
+        run: |
+          python3 -m pip install --upgrade pip
+          pip3 install poetry
+          poetry install
+      
+      - name: Build package
+        working-directory: commons
+        run: |
+          poetry build

@@ -15,6 +15,9 @@ class Adb:
         if len(binaries) > 1:
             raise AdbHaveMultipleMatches()
 
+    def run_command(self, command: str) -> [str, str, int]:
+        pass
+
     @classmethod
     def _discover_from_path(cls, binary_name: str) -> List[str]:
         """

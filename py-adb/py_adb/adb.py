@@ -1,7 +1,7 @@
 import os
 from typing import List
 
-from exceptions import AdbHaveMultipleMatches, AdbIsNotAvailable
+from .exceptions import AdbHaveMultipleMatches, AdbIsNotAvailable
 
 
 class Adb:

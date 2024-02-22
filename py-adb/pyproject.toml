@@ -29,10 +29,9 @@ profile = "black"
 line_length = 79
 
 [tool.taskipy.tasks]
-lint = "isort ./py_adb && black -S ./py_adb && flake8"
-test = "pytest -s -x -vv --cov=py-adb"
+lint = "isort ./py_adb ./tests && black -S ./py_adb ./tests && flake8"
+test = "pytest -s -x -vv"
 sast = "bandit -r ./py_adb"
-coverage = "coverage html"
 
 [build-system]
 requires = ["poetry-core"]

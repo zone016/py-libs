@@ -16,6 +16,17 @@ class TestIntegratedAdb(TestCase):
         devices = adb.list_devices()
         print(devices)
 
+    def test_device_app_search_dynamic(self):
+        adb = Adb()
+        devices = adb.list_devices()
+
+        if len(devices) == 0:
+            return
+
+        device = devices[0]
+        packages = adb.search_package(device, 'a')
+        self.assertTrue(len(packages) > 1)
+
     def test_device_app_listing_dynamic(self):
         adb = Adb()
         devices = adb.list_devices()

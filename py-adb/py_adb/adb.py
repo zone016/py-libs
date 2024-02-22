@@ -58,6 +58,37 @@ class Adb:
             if line.strip() and "List of devices attached" not in line
         ]
 
+    def search_package(self, device: str, pattern: str) -> List[str]:
+        """
+        Searches for a specific package on the designated device.
+
+        Executes the 'adb' command to search for a specified package on the
+        given device. The list of packages will exactly match the provided
+        package name.
+
+        :param device: The identifier for the Android device
+        (typically its serial number) on which the search is performed.
+        :param pattern: The name of the package to search for on
+        the device.
+
+        :return: A list of package names on the device that exactly match the
+        provided package name. Returns an empty list if the command fails or
+        no matching package is found.
+        """
+        command = ['shell', 'pm', 'list', 'packages', pattern]
+        result = self._run_command(['-s', device] + command)
+
+        if result.exit_code != 0 or not result.stdout:
+            return []
+
+        packages = [
+            line.replace('package:', '').strip()
+            for line in result.stdout
+            if line.startswith('package:')
+        ]
+
+        return packages
+
     def list_installed_apps(
         self, device: str, include_system_apps: bool = False
     ) -> List[str]:

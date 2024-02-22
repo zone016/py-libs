@@ -6,7 +6,7 @@ from py_adb import Adb
 from py_adb.exceptions import AdbHaveMultipleMatches, AdbIsNotAvailable
 
 
-class TestAdb(TestCase):
+class TestMockedAdb(TestCase):
     @patch('py_adb.Adb._is_adb_available')
     def test_instance_creation_without_adb(
         self, mock_is_adb_available: MagicMock

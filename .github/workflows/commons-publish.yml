@@ -27,7 +27,7 @@ jobs:
         run: |
           python3 -m pip install --upgrade pip
           pip3 install poetry
-          poetry install
+          poetry install --without dev
       
       - name: Build package
         working-directory: commons

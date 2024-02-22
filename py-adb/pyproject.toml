@@ -1,0 +1,39 @@
+[tool.poetry]
+name = "py-adb"
+version = "0.1.0"
+description = "A simplistic wrapper for adb OS agnostic."
+authors = ["Jojo <jonas.uliana@pm.me>"]
+license = "WTFPL"
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.12"
+
+[tool.poetry.group.dev.dependencies]
+bandit = "^1.7.7"
+pytest = "^8.0.1"
+isort = "^5.13.2"
+pytest-cov = "^4.1.0"
+black = "^24.2.0"
+taskipy = "^1.12.2"
+flake8 = "^7.0.0"
+
+[tool.pytest.ini_options]
+pythonpath = "."
+
+[tool.black]
+line-length = 79
+
+[tool.isort]
+profile = "black"
+line_length = 79
+
+[tool.taskipy.tasks]
+lint = "isort ./src && black -S ./src && flake8"
+test = "pytest -s -x -vv --cov=py-adb"
+sast = "bandit -r ./src"
+coverage = "coverage html"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"

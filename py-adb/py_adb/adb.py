@@ -37,6 +37,35 @@ class Adb:
 
         self.BINARY_PATH = binaries[0]
 
+    def get_application_artifacts(
+        self, device: str, package_name: str
+    ) -> List[str] | None:
+        """
+        Retrieves the application artifacts of a specified package on the
+        designated device.
+
+        :param device: The identifier for the Android device on which the
+            search is performed.
+        :param package_name: The name of the package for which to retrieve
+            the application artifacts.
+
+        :return: A list of application artifacts associated with the package,
+            or None if the command fails or no artifacts are found.
+        """
+        command = ['shell', 'pm', 'path', package_name]
+        result = self._run_command(['-s', device] + command)
+
+        if result.exit_code != 0 or not result.stdout:
+            return None
+
+        artifacts = []
+        for line in result.stdout:
+            if not line:
+                continue
+            artifacts.append(line.replace('package:', ''))
+
+        return artifacts
+
     def list_devices(self) -> List[str]:
         """
         Retrieves a list of connected devices via ADB.

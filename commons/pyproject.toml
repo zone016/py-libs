@@ -1,7 +1,7 @@
 [tool.poetry]
-name = "py-adb"
+name = "commons"
 version = "0.1.0"
-description = "A simplistic wrapper for adb OS agnostic."
+description = "The core types for other Área 16 libraries."
 authors = ["Jojo <jonas.uliana@pm.me>"]
 license = "WTFPL"
 readme = "README.md"
@@ -29,9 +29,9 @@ profile = "black"
 line_length = 79
 
 [tool.taskipy.tasks]
-lint = "isort ./py_adb ./tests && black -S ./py_adb ./tests && flake8"
+lint = "isort ./commons ./tests && black -S ./commons ./tests && flake8"
 test = "pytest -s -x -vv"
-sast = "bandit -r ./py_adb"
+sast = "bandit -r ./commons"
 
 [build-system]
 requires = ["poetry-core"]

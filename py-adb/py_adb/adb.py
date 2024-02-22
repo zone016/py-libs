@@ -144,6 +144,61 @@ class Adb:
         if result.exit_code != 0:
             raise FileTransferError(origin_file_path, destination_path)
 
+    def pull_file(
+        self,
+        device: str,
+        remote_file_path: str,
+        local_path: str,
+        overwrite: bool = False,
+    ) -> None:
+        """
+        Retrieves a file from a specified device to the local filesystem.
+
+        Validates the existence of the remote file before attempting to pull.
+        If 'overwrite' is False and the destination file already exists on
+        the local filesystem, the operation is aborted to prevent unintended
+        file replacement.
+
+        :param device: Device identifier from which the file will be retrieved.
+        :param remote_file_path: Path to the file on the device.
+        :param local_path: Target path on the local filesystem for the file.
+        :param overwrite: Flag indicating whether to overwrite an existing
+            file at the destination. Defaults to False.
+        :raises FileNotFoundError: If the remote file does not exist on
+            the device.
+        :raises FileExistsError: If 'overwrite' is False and the destination
+            file already exists on the local filesystem.
+        :raises FileTransferError: If the file transfer fails for any reason
+            not covered by the other exceptions.
+
+        This method leverages the 'adb pull' command for file transfer,
+        applying additional logic to handle file existence checks and
+        overwrite behavior.
+        """
+        check_cmd = [
+            'shell',
+            'test',
+            '-e',
+            remote_file_path,
+            '&&',
+            'echo',
+            'exists',
+        ]
+        result = self._run_command(['-s', device] + check_cmd)
+        if not result.stdout or 'exists' not in result.stdout:
+            raise FileNotFoundError()
+
+        if not overwrite and os.path.exists(local_path):
+            raise FileExistsError(
+                f'Local file {local_path} already exists'
+                f'and overwrite is False.'
+            )
+
+        pull_cmd = ['-s', device, 'pull', remote_file_path, local_path]
+        result = self._run_command(pull_cmd)
+        if result.exit_code != 0:
+            raise FileTransferError(remote_file_path, local_path)
+
     def _run_command(
         self, commands: List[str], timeout: int = None
     ) -> CommandResult:

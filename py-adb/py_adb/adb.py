@@ -4,7 +4,11 @@ from typing import List
 
 from commons import CommandResult
 
-from .exceptions import AdbHaveMultipleMatches, AdbIsNotAvailable
+from .exceptions import (
+    AdbHaveMultipleMatches,
+    AdbIsNotAvailable,
+    FileTransferError,
+)
 
 
 class Adb:
@@ -86,6 +90,59 @@ class Adb:
         ]
 
         return apps
+
+    def push_file(
+        self,
+        device: str,
+        origin_file_path: str,
+        destination_path: str,
+        overwrite: bool = False,
+    ) -> None:
+        """
+        Sends a file from the local filesystem to a specified device.
+
+        Validates the existence of the origin file before attempting to push.
+        If 'overwrite' is False and the destination file already exists on
+        the device, the operation is aborted to prevent unintended file
+        replacement.
+
+        :param device: Device identifier where the file will be sent.
+        :param origin_file_path: Path to the file on the local filesystem.
+        :param destination_path: Target path on the device for the file.
+        :param overwrite: Flag indicating whether to overwrite an existing
+            file at the destination. Defaults to False.
+        :raises FileNotFoundError: If the origin file does not exist on
+            the local filesystem.
+        :raises FileExistsError: If 'overwrite' is False and the destination
+            file already exists on the device.
+        :raises FileTransferError: If the file transfer fails for any reason
+            not covered by the other exceptions.
+
+        This method leverages the 'adb push' command for file transfer,
+        applying additional logic to handle file existence checks and
+        overwrite behavior.
+        """
+        if not os.path.isfile(origin_file_path):
+            raise FileNotFoundError()
+
+        if not overwrite:
+            check_cmd = [
+                'shell',
+                'test',
+                '-e',
+                destination_path,
+                '&&',
+                'echo',
+                'exists',
+            ]
+            result = self._run_command(['-s', device] + check_cmd)
+            if result.stdout and 'exists' in result.stdout:
+                raise FileExistsError()
+
+        push_cmd = ['-s', device, 'push', origin_file_path, destination_path]
+        result = self._run_command(push_cmd)
+        if result.exit_code != 0:
+            raise FileTransferError(origin_file_path, destination_path)
 
     def _run_command(
         self, commands: List[str], timeout: int = None

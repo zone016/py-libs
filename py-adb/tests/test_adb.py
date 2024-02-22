@@ -6,7 +6,7 @@ from py_adb.exceptions import AdbHaveMultipleMatches, AdbIsNotAvailable
 
 
 class TestAdb(TestCase):
-    @patch('py_adb.Adb.is_adb_available')
+    @patch('py_adb.Adb._is_adb_available')
     def test_instance_creation_without_adb(
         self, mock_is_adb_available: MagicMock
     ) -> None:
@@ -15,8 +15,8 @@ class TestAdb(TestCase):
         with self.assertRaises(AdbIsNotAvailable):
             _ = Adb()
 
-    @patch('py_adb.Adb.discover_from_path')
-    @patch('py_adb.Adb.is_adb_available')
+    @patch('py_adb.Adb._discover_from_path')
+    @patch('py_adb.Adb._is_adb_available')
     def test_instance_creation_with_multiple_entries(
         self,
         mock_is_adb_available: MagicMock,
@@ -28,8 +28,8 @@ class TestAdb(TestCase):
         with self.assertRaises(AdbHaveMultipleMatches):
             _ = Adb()
 
-    @patch('py_adb.Adb.discover_from_path')
-    @patch('py_adb.Adb.is_adb_available')
+    @patch('py_adb.Adb._discover_from_path')
+    @patch('py_adb.Adb._is_adb_available')
     def test_instance_creation_with_adb(
         self,
         mock_is_adb_available: MagicMock,

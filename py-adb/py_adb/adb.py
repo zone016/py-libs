@@ -1,11 +1,15 @@
 import os
+import subprocess
 from typing import List
+
+from commons import CommandResult
 
 from .exceptions import AdbHaveMultipleMatches, AdbIsNotAvailable
 
 
 class Adb:
     BINARY_NAME = 'adb.exe' if os.name == 'nt' else 'adb'
+    BINARY_PATH = None
 
     def __init__(self):
         if not self._is_adb_available():
@@ -15,8 +19,30 @@ class Adb:
         if len(binaries) > 1:
             raise AdbHaveMultipleMatches()
 
-    def run_command(self, command: str) -> [str, str, int]:
-        pass
+        self.BINARY_PATH = binaries[0]
+
+    def run_command(
+        self, commands: List[str], timeout: int = None
+    ) -> CommandResult:
+        args = [self.BINARY_PATH] + commands
+        try:
+            result = subprocess.run(
+                args,
+                stdout=subprocess.PIPE,
+                stderr=subprocess.PIPE,
+                timeout=timeout,
+                universal_newlines=True,
+                shell=True,
+                check=True,
+            )
+            stdout = result.stdout.split('\n') if result.stdout else None
+            stderr = result.stderr.split('\n') if result.stderr else None
+            return CommandResult(stdout, stderr, result.returncode)
+        except subprocess.TimeoutExpired:
+            return CommandResult(None, None, 1)
+        except subprocess.CalledProcessError as e:
+            stderr = e.stderr.split('\n') if e.stderr else None
+            return CommandResult(None, stderr, e.returncode)
 
     @classmethod
     def _discover_from_path(cls, binary_name: str) -> List[str]:

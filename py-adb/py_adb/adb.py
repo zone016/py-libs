@@ -12,6 +12,18 @@ class Adb:
     BINARY_PATH = None
 
     def __init__(self):
+        """
+        Initializes the Adb instance by locating the adb binary.
+
+        This method checks for the adb binary's availability in
+        the system's PATH. It raises exceptions if the adb binary
+        is not found or if multiple instances are discovered to
+        ensure clarity in which adb instance is used.
+
+        Raises:
+            AdbIsNotAvailable: If no adb binary is found in the system's PATH.
+            AdbHaveMultipleMatches: If more than one adb binary is found.
+        """
         if not self._is_adb_available():
             raise AdbIsNotAvailable()
 
@@ -22,6 +34,16 @@ class Adb:
         self.BINARY_PATH = binaries[0]
 
     def list_devices(self) -> List[str]:
+        """
+        Retrieves a list of connected devices via ADB.
+
+        Executes 'adb devices' to list devices connected to the ADB server.
+        Parses the output, excluding the header and non-device lines,
+        to produce a list of device identifiers.
+
+        :return: A list of device identifiers if successful,
+                 otherwise an empty list.
+        """
         result = self._run_command(['devices'])
         if result.exit_code != 0 or not result.stdout:
             return []
@@ -70,7 +92,6 @@ class Adb:
         :param binary_name: Name of the binary to search for.
         :return: List of full paths where the binary was found.
         """
-
         paths = os.getenv('PATH').split(os.pathsep)
         found_paths = []
 

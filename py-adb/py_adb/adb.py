@@ -54,6 +54,39 @@ class Adb:
             if line.strip() and "List of devices attached" not in line
         ]
 
+    def list_installed_apps(
+        self, device: str, include_system_apps: bool = False
+    ) -> List[str]:
+        """
+        Retrieves a list of installed applications on the specified device.
+
+        Executes the 'adb' command to list all applications installed on
+        the given device. Can be configured to exclude system applications
+        from the returned list.
+
+        :param device: The identifier for the device from which to list apps.
+        :param include_system_apps: If False, the list will exclude
+            system apps, otherwise, it includes all apps. Defaults to False.
+        :return: A list of strings where each string is the package name of an
+            installed application. Returns an empty list if the command
+            fails or if no apps are found.
+        """
+        command = ['shell', 'pm', 'list', 'packages']
+        if not include_system_apps:
+            command.append('-3')
+
+        result = self._run_command(['-s', device] + command)
+        if result.exit_code != 0 or not result.stdout:
+            return []
+
+        apps = [
+            line.replace('package:', '').strip()
+            for line in result.stdout
+            if line.strip()
+        ]
+
+        return apps
+
     def _run_command(
         self, commands: List[str], timeout: int = None
     ) -> CommandResult:

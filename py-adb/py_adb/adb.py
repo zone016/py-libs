@@ -23,7 +23,7 @@ class Adb:
 
     def list_devices(self) -> List[str]:
         result = self._run_command(['devices'])
-        if result.exit_code != 0:
+        if result.exit_code != 0 or not result.stdout:
             return []
 
         return [

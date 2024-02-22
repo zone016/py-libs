@@ -92,3 +92,22 @@ class TestAdb(TestCase):
         self.assertEqual(
             devices, ['emulator-5554', 'emulator-5555', 'emulator-5556']
         )
+
+    @patch('subprocess.run')
+    @patch('py_adb.Adb._discover_from_path')
+    @patch('py_adb.Adb._is_adb_available')
+    def test_list_devices_with_invalid_exit_code(
+        self,
+        mock_is_adb_available: MagicMock,
+        mock_discover_from_path: MagicMock,
+        mock_run: MagicMock,
+    ) -> None:
+        mock_is_adb_available.return_value = True
+        mock_discover_from_path.return_value = ['1']
+        mock_run.return_value = subprocess.CompletedProcess(
+            args='adb devices', returncode=0, stdout=None, stderr=None
+        )
+
+        adb = Adb()
+        devices = adb.list_devices()
+        self.assertEqual(len(devices), 0)

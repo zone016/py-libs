@@ -29,9 +29,9 @@ profile = "black"
 line_length = 79
 
 [tool.taskipy.tasks]
-lint = "isort ./src && black -S ./src && flake8"
+lint = "isort ./py_adb && black -S ./py_adb && flake8"
 test = "pytest -s -x -vv --cov=py-adb"
-sast = "bandit -r ./src"
+sast = "bandit -r ./py_adb"
 coverage = "coverage html"
 
 [build-system]

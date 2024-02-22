@@ -60,7 +60,7 @@ class TestAdb(TestCase):
         )
 
         adb = Adb()
-        command_result = adb.run_command(['devices'])
+        command_result = adb._run_command(['devices'])
         self.assertEqual(len(command_result.stderr), 1)
         self.assertEqual(len(command_result.stdout), 1)
         self.assertEqual(command_result.exit_code, 0)

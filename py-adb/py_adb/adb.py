@@ -21,7 +21,7 @@ class Adb:
 
         self.BINARY_PATH = binaries[0]
 
-    def run_command(
+    def _run_command(
         self, commands: List[str], timeout: int = None
     ) -> CommandResult:
         """

@@ -24,6 +24,13 @@ class Adb:
     def run_command(
         self, commands: List[str], timeout: int = None
     ) -> CommandResult:
+        """
+        Executes ADB commands.
+
+        :param commands: List of command strings to be executed.
+        :param timeout: Maximum time (in seconds) for command execution.
+        :return: A CommandResult object containing the execution details.
+        """
         args = [self.BINARY_PATH] + commands
         try:
             result = subprocess.run(

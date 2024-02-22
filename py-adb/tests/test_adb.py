@@ -53,7 +53,10 @@ class TestAdb(TestCase):
         mock_is_adb_available.return_value = True
         mock_discover_from_path.return_value = ['1']
         mock_run.return_value = subprocess.CompletedProcess(
-            args='adb devices', returncode=0, stdout='dummy stdout', stderr='dummy stderr'
+            args='adb devices',
+            returncode=0,
+            stdout='dummy stdout',
+            stderr='dummy stderr',
         )
 
         adb = Adb()

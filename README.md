@@ -5,4 +5,4 @@ Esse _mono-repo_ contém as bibliotecas que desenvolvemos para nossos _toolings_
 | **Nome**                | **Descrição**                                                  |
 | ----------------------- | -------------------------------------------------------------- |
 | [`py-adb`](./py-adb/)   | Uma forma minimalista de lidar com o ADB de forma programática |
-| [`commons`](./commons/) | Abstrações de baixo nível de coisas que utilizamos.            |
+| [`commons`](./commons/) | Abstrações de baixo nível de coisas que utilizamos             |

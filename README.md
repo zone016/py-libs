@@ -6,3 +6,4 @@ Esse _mono-repo_ contém as bibliotecas que desenvolvemos para nossos _toolings_
 | ----------------------- | -------------------------------------------------------------- |
 | [`py-adb`](./py-adb/)   | Uma forma minimalista de lidar com o ADB de forma programática |
 | [`commons`](./commons/) | Abstrações de baixo nível de coisas que utilizamos             |
+| [`printer`](./printer/) | Uma forma de normalizar stdout e stderr usando `rich`          |

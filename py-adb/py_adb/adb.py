@@ -277,16 +277,15 @@ class Adb:
                 stderr=subprocess.PIPE,
                 timeout=timeout,
                 universal_newlines=True,
-                shell=True,
                 check=True,
             )
-            stdout = result.stdout.split('\n') if result.stdout else None
-            stderr = result.stderr.split('\n') if result.stderr else None
+            stdout = result.stdout.splitlines() if result.stdout else None
+            stderr = result.stderr.splitlines() if result.stderr else None
             return CommandResult(stdout, stderr, result.returncode)
         except subprocess.TimeoutExpired:
             return CommandResult(None, None, 1)
         except subprocess.CalledProcessError as e:
-            stderr = e.stderr.split('\n') if e.stderr else None
+            stderr = e.stderr.splitlines() if e.stderr else None
             return CommandResult(None, stderr, e.returncode)
 
     @classmethod

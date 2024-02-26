@@ -1,4 +1,5 @@
 import os
+import shutil
 import tempfile
 import unittest
 from pathlib import Path
@@ -65,3 +66,52 @@ class TestIntegratedAdb(TestCase):
 
         os.remove(origin_path)
         os.remove(file_name)
+
+
+@unittest.skipIf(
+    not Adb._is_adb_available(),
+    'Only run if adb is in fact available.'
+    and len(Adb().list_devices()) >= 1
+    and Adb().search_package(Adb().list_devices()[0], 'whatsapp') is not None,
+)
+class TestAppManagementWithWhatsApp(TestCase):
+    def test_uninstall_and_install(self):
+        adb = Adb()
+        device = adb.list_devices()[0]
+
+        apps = adb.search_package(device, 'whatsapp')
+        self.assertTrue(len(apps) == 1)
+
+        whatsapp = apps[0]
+        whatsapp_artifacts = adb.get_application_artifacts(device, whatsapp)
+        self.assertTrue(len(whatsapp_artifacts) > 0)
+
+        output = tempfile.mkdtemp()
+        for artifact in whatsapp_artifacts:
+            artifact_path = Path(output) / Path(artifact).name
+            adb.pull_file(device, artifact, str(artifact_path))
+
+        is_uninstalled = adb.uninstall_app(device, whatsapp)
+        self.assertTrue(is_uninstalled)
+
+        apps = adb.search_package(device, 'whatsapp')
+        self.assertTrue(len(apps) == 0)
+
+        if len(whatsapp_artifacts) == 1:
+            pacakge = Path(output) / Path(whatsapp_artifacts[0]).name
+            is_installed = adb.install_app(device, str(pacakge))
+
+            self.assertTrue(is_installed)
+        else:
+            packages = []
+            for artifact in whatsapp_artifacts:
+                package = Path(output) / Path(artifact).name
+                packages.append(str(package))
+
+            is_installed = adb.install_split_app(device, packages)
+            self.assertTrue(is_installed)
+
+        apps = adb.search_package(device, 'whatsapp')
+        self.assertTrue(len(apps) == 1)
+
+        shutil.rmtree(output)

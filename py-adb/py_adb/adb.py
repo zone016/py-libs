@@ -1,5 +1,6 @@
 import os
 import subprocess
+from pathlib import Path
 from typing import List
 
 from commons import CommandResult
@@ -36,6 +37,47 @@ class Adb:
             raise AdbHaveMultipleMatches()
 
         self.BINARY_PATH = binaries[0]
+
+    def install_split_app(self, device: str, packages: List[str]) -> bool:
+        """
+        Installs split APKs on a specified device.
+
+        Installs multiple APKs as a single app on the device. Raises a
+        FileNotFoundError if any APK file is missing.
+
+        :param device: Device ID or serial number.
+        :param packages: List of paths to the APK files.
+        :return: True if installation succeeds, False otherwise.
+        :raises FileNotFoundError: If an APK file is not found.
+        """
+        for package in packages:
+            if not Path(package).is_file():
+                raise FileNotFoundError(package)
+
+        command = ['-s', device, 'install-multiple', '-r'] + packages
+        result = self._run_command(command)
+
+        return result.exit_code == 0
+
+    def install_app(self, device: str, package: str) -> bool:
+        """
+        Installs a single APK on the specified Android device.
+
+        Attempts to install an APK file on a device. If the package file does
+        not exist, a FileNotFoundError is raised.
+
+        :param device: The ID or serial number of the target device.
+        :param package: The file path to the APK to be installed.
+        :return: True if the APK was successfully installed, False otherwise.
+        :raises FileNotFoundError: If the APK file cannot be found.
+        """
+        if not Path(package).is_file():
+            raise FileNotFoundError(package)
+
+        command = ['-s', device, 'install', package]
+        result = self._run_command(command)
+
+        return result.exit_code == 0
 
     def get_application_artifacts(
         self, device: str, package_name: str

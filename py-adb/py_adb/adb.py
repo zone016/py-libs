@@ -38,6 +38,19 @@ class Adb:
 
         self.BINARY_PATH = binaries[0]
 
+    def uninstall_app(self, device: str, package: str) -> bool:
+        """
+        Uninstalls an app from the specified Android device.
+
+        :param device: The ID or serial number of the device.
+        :param package: The package name of the app to uninstall.
+        :return: True if the app was successfully uninstalled, False otherwise.
+        """
+        command = ['-s', device, 'uninstall', package]
+        result = self._run_command(command)
+
+        return result.exit_code == 0
+
     def install_split_app(self, device: str, packages: List[str]) -> bool:
         """
         Installs split APKs on a specified device.

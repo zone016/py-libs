@@ -142,6 +142,16 @@ class Adb:
             if line.strip() and "List of devices attached" not in line
         ]
 
+    def pgrep(self, device: str, process_name: str) -> List[int]:
+        result = self._run_command(
+            ['-s', device, 'shell', 'pgrep', process_name]
+        )
+
+        if result.exit_code != 0:
+            return []
+
+        return [int(pid) for pid in result.stdout]
+
     def search_package(self, device: str, pattern: str) -> List[str]:
         """
         Searches for a specific package on the designated device.

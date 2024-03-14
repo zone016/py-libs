@@ -9,8 +9,7 @@ from py_adb import Adb
 
 
 @unittest.skipIf(
-    not Adb._is_adb_available(),
-    'Only run if adb is in fact available.'
+    not Adb._is_adb_available(), 'Only run if adb is in fact available.'
 )
 class TestIntegratedAdb(TestCase):
     def test_device_listing_dynamic(self):
@@ -69,17 +68,16 @@ class TestIntegratedAdb(TestCase):
         os.remove(file_name)
 
 
-@unittest.skipIf(
-    (
-        not Adb._is_adb_available()
-        and len(Adb().list_devices()) >= 1
-        and Adb().search_package(Adb().list_devices()[0], 'whatsapp')
-        is not None
-    ),
-    'Only run if adb is in fact available.',
-)
-class TestAppManagementWithWhatsApp(TestCase):
-    def test_uninstall_and_install(self):
+class TestAppManagement(TestCase):
+    @unittest.skipUnless(
+        (
+                Adb._is_adb_available()
+                and len(Adb().list_devices()) == 0
+                and len(Adb().search_package(Adb().list_devices()[0], 'whatsapp')) >= 1
+        ),
+        'Only run if adb is in fact available and WhatsApp is installed.',
+    )
+    def test_uninstall_and_install_whatsapp(self):
         adb = Adb()
         device = adb.list_devices()[0]
 
@@ -126,3 +124,12 @@ class TestAppManagementWithWhatsApp(TestCase):
 
         pids = adb.pgrep(device, 'a')
         self.assertTrue(len(pids) > 1)
+
+    @unittest.skipUnless(
+        Adb().file_exists(Adb().list_devices()[0], '/system/xbin/su'),
+        'Emulator does not have su executable',
+    )
+    def test_root_detection(self):
+        adb = Adb()
+        device = adb.list_devices()[0]
+        self.assertTrue(adb.is_device_rooted(device))

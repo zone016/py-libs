@@ -142,6 +142,18 @@ class Adb:
             if line.strip() and "List of devices attached" not in line
         ]
 
+    def file_exists(self, device: str, file_path: str) -> bool:
+        result = self._run_command(['-s', device, 'shell', 'file', file_path])
+        return result.exit_code == 0
+
+    def is_device_rooted(self, device: str) -> bool:
+        result = self._run_command(['-s', device, 'shell', 'su', '0', 'id'])
+
+        if result.exit_code != 0 or len(result.stdout) == 0:
+            return False
+
+        return 'uid=0(root)' in result.stdout[0]
+
     def pgrep(self, device: str, process_name: str) -> List[int]:
         result = self._run_command(
             ['-s', device, 'shell', 'pgrep', process_name]
@@ -334,6 +346,9 @@ class Adb:
         :param timeout: Maximum time (in seconds) for command execution.
         :return: A CommandResult object containing the execution details.
         """
+        if not all(isinstance(command, str) for command in commands):
+            raise ValueError('Every command must be a string')
+
         args = [self.BINARY_PATH] + commands
         try:
             result = subprocess.run(

@@ -9,7 +9,8 @@ from py_adb import Adb
 
 
 @unittest.skipIf(
-    not Adb._is_adb_available(), 'Only run if adb is in fact available.'
+    not Adb._is_adb_available(),
+    'Only run if adb is in fact available.'
 )
 class TestIntegratedAdb(TestCase):
     def test_device_listing_dynamic(self):
@@ -69,10 +70,13 @@ class TestIntegratedAdb(TestCase):
 
 
 @unittest.skipIf(
-    not Adb._is_adb_available(),
-    'Only run if adb is in fact available.'
-    and len(Adb().list_devices()) >= 1
-    and Adb().search_package(Adb().list_devices()[0], 'whatsapp') is not None,
+    (
+        not Adb._is_adb_available()
+        and len(Adb().list_devices()) >= 1
+        and Adb().search_package(Adb().list_devices()[0], 'whatsapp')
+        is not None
+    ),
+    'Only run if adb is in fact available.',
 )
 class TestAppManagementWithWhatsApp(TestCase):
     def test_uninstall_and_install(self):
@@ -115,3 +119,10 @@ class TestAppManagementWithWhatsApp(TestCase):
         self.assertTrue(len(apps) == 1)
 
         shutil.rmtree(output)
+
+    def test_pidof(self):
+        adb = Adb()
+        device = adb.list_devices()[0]
+
+        pids = adb.pgrep(device, 'a')
+        self.assertTrue(len(pids) > 1)

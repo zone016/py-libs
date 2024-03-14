@@ -6,12 +6,9 @@ from py_adb import Adb
 from kahlo import Kahlo
 
 
-@unittest.skipIf(
-    (
-        not Adb._is_adb_available()
-        and len(Adb().list_devices()) >= 1
-    ),
-    'Only run if adb is in available alongside a device and Whatsapp is installed.',
+@unittest.skipUnless(
+    (Adb._is_adb_available() and len(Adb().list_devices()) >= 1),
+    'Only run if adb is in available and Whatsapp is installed.',
 )
 class TestIntegratedKahlo(TestCase):
     def test_validations(self):
@@ -19,3 +16,10 @@ class TestIntegratedKahlo(TestCase):
         kahlo = Kahlo(device)
 
         self.assertTrue(kahlo.is_device_available())
+
+    @unittest.skipUnless(
+        Kahlo(Adb().list_devices()[0]).is_device_rooted(),
+        'Device is not rooted',
+    )
+    def test_frida_installation(self):
+        pass

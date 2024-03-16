@@ -6,15 +6,17 @@ from .exceptions import (
     DeviceDoesNotExists,
     DeviceIsNotConnceted,
     DeviceIsNotRooted,
+    FridaIsAlreadyRunning,
+    FridaIsNotRunning
 )
 
 
 class Kahlo:
     def __init__(self, device_name: str):
         """
-        Initialize the Kahlo wrapper with a specific _device.
+        Initialize the Kahlo wrapper with a specific device.
 
-        :param device_name: The identifier of the _device to be used.
+        :param device_name: The identifier of the device to be used.
         """
         self.device_name: str = device_name
         self._sessions = set()
@@ -22,17 +24,27 @@ class Kahlo:
         self._is_connected: bool = False
         self._adb: Adb = Adb()
 
-    def is_frida_server_running(self) -> bool:
-        if not self._is_connected:
-            raise DeviceIsNotConnceted
+    def kill_frida_server(self) -> None:
+        self._enforce_dependencies()
+        if not self.is_frida_server_running():
+            raise FridaIsNotRunning(self.device_name)
 
-        return False
+        # TODO: Literally kill the frida-server proccess as root.
+
+    def is_frida_server_running(self) -> bool:
+        self._enforce_device_connection()
+
+        if self.is_frida_server_running():
+            raise FridaIsAlreadyRunning(self.device_name)
+
+        pids = self._adb.pgrep(self.device_name, 'frida-server')
+        return len(pids) >= 1
 
     def is_device_rooted(self) -> bool:
         self._enforce_device_availability()
         return self._adb.is_device_rooted(self.device_name)
 
-    def connect(self):
+    def connect(self) -> None:
         self._enforce_dependencies()
         self._device = frida.get_device(self.device_name)
 
@@ -55,3 +67,9 @@ class Kahlo:
             return
 
         raise DeviceDoesNotExists
+
+    def _enforce_device_connection(self) -> None:
+        if self._is_connected:
+            return
+
+        raise DeviceIsNotConnceted

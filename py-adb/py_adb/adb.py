@@ -1,6 +1,7 @@
 import os
 import subprocess
 from pathlib import Path
+from time import sleep
 from typing import List
 
 from commons import CommandResult
@@ -8,6 +9,7 @@ from commons import CommandResult
 from .exceptions import (
     AdbHaveMultipleMatches,
     AdbIsNotAvailable,
+    DeviceIsNotRooted,
     FileTransferError,
 )
 
@@ -121,6 +123,16 @@ class Adb:
 
         return artifacts
 
+    def pidof(self, device: str, package_name: str) -> int:
+        result = self._run_command(
+            ['-s', device, 'shell', 'pidof', package_name]
+        )
+
+        if not result.stdout or len(result.stdout) == 0:
+            return 0
+
+        return int(result.stdout[0])
+
     def list_devices(self) -> List[str]:
         """
         Retrieves a list of connected devices via ADB.
@@ -141,6 +153,54 @@ class Adb:
             for line in result.stdout
             if line.strip() and "List of devices attached" not in line
         ]
+
+    def spawn(
+        self,
+        device: str,
+        package_name: str,
+    ) -> int:
+        if package_name not in self.list_installed_apps(device, True):
+            return 0
+
+        if self.pidof(device, package_name) != 0:
+            return 0
+
+        result = self._run_command(
+            [
+                '-s',
+                device,
+                'shell',
+                'monkey',
+                '-p',
+                package_name,
+                '-c',
+                'android.intent.category.LAUNCHER',
+                '1',
+            ]
+        )
+
+        if result.exit_code != 0 or not result.stdout:
+            return 0
+
+        sleep(0.3)
+
+        return self.pidof(device, package_name)
+
+    def kill(self, device: str, pid: int, as_root: bool = False) -> bool:
+        if as_root and not self.is_device_rooted(device):
+            raise DeviceIsNotRooted(device)
+
+        command = (
+            ['-s', device, 'shell', 'su', '0', 'kill', str(pid)]
+            if as_root
+            else ['-s', device, 'shell', 'kill', str(pid)]
+        )
+
+        result = self._run_command(command)
+        if result.stdout and 'No such process' not in result.stdout:
+            return False
+
+        return result.exit_code == 0
 
     def file_exists(self, device: str, file_path: str) -> bool:
         result = self._run_command(['-s', device, 'shell', 'file', file_path])

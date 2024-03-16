@@ -71,9 +71,10 @@ class TestIntegratedAdb(TestCase):
 class TestAppManagement(TestCase):
     @unittest.skipUnless(
         (
-                Adb._is_adb_available()
-                and len(Adb().list_devices()) == 0
-                and len(Adb().search_package(Adb().list_devices()[0], 'whatsapp')) >= 1
+            Adb._is_adb_available()
+            and len(Adb().list_devices()) == 0
+            and len(Adb().search_package(Adb().list_devices()[0], 'whatsapp'))
+            >= 1
         ),
         'Only run if adb is in fact available and WhatsApp is installed.',
     )
@@ -124,6 +125,30 @@ class TestAppManagement(TestCase):
 
         pids = adb.pgrep(device, 'a')
         self.assertTrue(len(pids) > 1)
+
+    @unittest.skipUnless(
+        (
+            Adb._is_adb_available()
+            and len(Adb().list_devices()) > 0
+            and len(Adb().search_package(Adb().list_devices()[0], 'chrome'))
+            == 1
+            and Adb().file_exists(Adb().list_devices()[0], '/system/xbin/su')
+        ),
+        'Only run if adb is in fact available and Chrome is installed.',
+    )
+    def test_spawn_and_kill(self):
+        adb = Adb()
+        device = adb.list_devices()[0]
+
+        chrome_pid = adb.pidof(device, 'com.android.chrome')
+        if chrome_pid != 0:
+            is_chrome_killed = adb.kill(device, chrome_pid, True)
+            self.assertTrue(is_chrome_killed)
+
+        chrome_pid = adb.spawn(device, 'com.android.chrome')
+        self.assertFalse(0, chrome_pid)
+        is_chrome_killed = adb.kill(device, chrome_pid, True)
+        self.assertTrue(is_chrome_killed)
 
     @unittest.skipUnless(
         Adb().file_exists(Adb().list_devices()[0], '/system/xbin/su'),

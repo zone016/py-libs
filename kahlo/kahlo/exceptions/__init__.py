@@ -1,3 +1,5 @@
 from .device_does_not_exists import DeviceDoesNotExists
 from .device_is_not_connected import DeviceIsNotConnceted
 from .device_is_not_rooted import DeviceIsNotRooted
+from .frida_is_already_running import FridaIsAlreadyRunning
+from .frida_is_not_running import FridaIsNotRunning

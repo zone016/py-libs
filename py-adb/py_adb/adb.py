@@ -40,7 +40,7 @@ class Adb:
 
         self.BINARY_PATH = binaries[0]
 
-    def uninstall_app(self, device: str, package: str) -> bool:
+    def uninstall_package(self, device: str, package: str) -> bool:
         """
         Uninstalls an app from the specified Android device.
 
@@ -53,7 +53,7 @@ class Adb:
 
         return result.exit_code == 0
 
-    def install_split_app(self, device: str, packages: List[str]) -> bool:
+    def install_split_package(self, device: str, packages: List[str]) -> bool:
         """
         Installs split APKs on a specified device.
 
@@ -74,7 +74,7 @@ class Adb:
 
         return result.exit_code == 0
 
-    def install_app(self, device: str, package: str) -> bool:
+    def install_package(self, device: str, package: str) -> bool:
         """
         Installs a single APK on the specified Android device.
 
@@ -94,7 +94,7 @@ class Adb:
 
         return result.exit_code == 0
 
-    def get_application_artifacts(
+    def get_package_artifacts(
         self, device: str, package_name: str
     ) -> List[str] | None:
         """
@@ -133,7 +133,7 @@ class Adb:
 
         return int(result.stdout[0])
 
-    def list_devices(self) -> List[str]:
+    def get_devices(self) -> List[str]:
         """
         Retrieves a list of connected devices via ADB.
 
@@ -154,12 +154,20 @@ class Adb:
             if line.strip() and "List of devices attached" not in line
         ]
 
+    def get_abi(self, device: str) -> str:
+        command = ['-s', device, 'shell', 'getprop', 'ro.product.cpu.abi']
+        result = self._run_command(command)
+        if result.exit_code != 0 or not result.stdout:
+            return ''
+
+        return result.stdout[0].strip()
+
     def spawn(
         self,
         device: str,
         package_name: str,
     ) -> int:
-        if package_name not in self.list_installed_apps(device, True):
+        if package_name not in self.get_apps(device, True):
             return 0
 
         if self.pidof(device, package_name) != 0:
@@ -187,7 +195,7 @@ class Adb:
         return self.pidof(device, package_name)
 
     def kill(self, device: str, pid: int, as_root: bool = False) -> bool:
-        if as_root and not self.is_device_rooted(device):
+        if as_root and not self.is_rooted(device):
             raise DeviceIsNotRooted(device)
 
         command = (
@@ -206,7 +214,7 @@ class Adb:
         result = self._run_command(['-s', device, 'shell', 'file', file_path])
         return result.exit_code == 0
 
-    def is_device_rooted(self, device: str) -> bool:
+    def is_rooted(self, device: str) -> bool:
         result = self._run_command(['-s', device, 'shell', 'su', '0', 'id'])
 
         if result.exit_code != 0 or len(result.stdout) == 0:
@@ -255,7 +263,7 @@ class Adb:
 
         return packages
 
-    def list_installed_apps(
+    def get_apps(
         self, device: str, include_system_apps: bool = False
     ) -> List[str]:
         """
@@ -288,7 +296,7 @@ class Adb:
 
         return apps
 
-    def push_file(
+    def push(
         self,
         device: str,
         origin_file_path: str,
@@ -341,7 +349,7 @@ class Adb:
         if result.exit_code != 0:
             raise FileTransferError(origin_file_path, destination_path)
 
-    def pull_file(
+    def pull(
         self,
         device: str,
         remote_file_path: str,

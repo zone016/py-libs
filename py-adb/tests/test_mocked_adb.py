@@ -87,7 +87,7 @@ class TestMockedAdb(TestCase):
         )
 
         adb = Adb()
-        devices = adb.list_devices()
+        devices = adb.get_devices()
         self.assertEqual(len(devices), 3)
         self.assertEqual(
             devices, ['emulator-5554', 'emulator-5555', 'emulator-5556']
@@ -109,5 +109,5 @@ class TestMockedAdb(TestCase):
         )
 
         adb = Adb()
-        devices = adb.list_devices()
+        devices = adb.get_devices()
         self.assertEqual(len(devices), 0)

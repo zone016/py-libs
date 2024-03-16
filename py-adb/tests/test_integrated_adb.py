@@ -72,7 +72,7 @@ class TestAppManagement(TestCase):
     @unittest.skipUnless(
         (
                 Adb._is_adb_available()
-                and len(Adb().get_devices()) == 0
+                and len(Adb().get_devices()) > 1
                 and len(Adb().search_package(Adb().get_devices()[0], 'whatsapp'))
                 >= 1
         ),

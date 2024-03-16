@@ -34,9 +34,6 @@ class Kahlo:
     def is_frida_server_running(self) -> bool:
         self._enforce_device_connection()
 
-        if self.is_frida_server_running():
-            raise FridaIsAlreadyRunning(self.device_name)
-
         pids = self._adb.pgrep(self.device_name, 'frida-server')
         return len(pids) >= 1
 

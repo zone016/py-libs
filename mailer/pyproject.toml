@@ -1,0 +1,41 @@
+[tool.poetry]
+name = "mailer"
+version = "0.1.0"
+description = "Simplistic Python CLI for sending emails using SMTP servers without password."
+authors = ["Jojo <jonas.uliana@pm.me>"]
+license = "WTFPL"
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.10"
+printer = {git = "https://github.com/zone016/py-libs.git", subdirectory = "printer"}
+
+[tool.poetry.scripts]
+mailer = "mailer.app:main"
+
+[tool.poetry.group.dev.dependencies]
+bandit = "^1.7.7"
+pytest = "^8.0.1"
+isort = "^5.13.2"
+black = "^24.2.0"
+taskipy = "^1.12.2"
+flake8 = "^7.0.0"
+
+[tool.pytest.ini_options]
+pythonpath = "."
+
+[tool.black]
+line-length = 79
+
+[tool.isort]
+profile = "black"
+line_length = 79
+
+[tool.taskipy.tasks]
+lint = "isort ./mailer ./tests && black -S ./mailer ./tests && flake8"
+test = "pytest -s -x -vv"
+sast = "bandit -r ./mailer"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"

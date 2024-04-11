@@ -9,3 +9,4 @@ Esse _mono-repo_ contém as bibliotecas que desenvolvemos para nossos _toolings_
 | [`printer`](./printer/) | Uma forma de normalizar stdout e stderr usando `rich`          |
 | [`kahlo`](./kahlo/)     | Abstrações para instrumentações genéricas para Frida           |
 | [`fcache`](./fcache/)   | Cache de arquivos de maneira prática e segura                  |
+| [`mailer`](./mailer/)   | CLI simples para enviar mensagens usando SMTP sem autenticação |

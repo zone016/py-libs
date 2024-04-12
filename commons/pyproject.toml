@@ -2,18 +2,21 @@
 name = "commons"
 version = "0.1.0"
 description = "The core types for other Área 16 libraries."
-authors = ["Jojo <jonas.uliana@pm.me>"]
+authors = [
+    "3B853B <3b853b@pm.me>",
+    "Jojo <jonas.uliana@pm.me>"
+]
 license = "WTFPL"
 readme = "README.md"
 
 [tool.poetry.dependencies]
 python = "^3.10"
+requests = "^2.31.0"
 
 [tool.poetry.group.dev.dependencies]
 bandit = "^1.7.7"
 pytest = "^8.0.1"
 isort = "^5.13.2"
-pytest-cov = "^4.1.0"
 black = "^24.2.0"
 taskipy = "^1.12.2"
 flake8 = "^7.0.0"
@@ -29,9 +32,9 @@ profile = "black"
 line_length = 79
 
 [tool.taskipy.tasks]
-lint = "isort ./commons ./tests && black -S ./commons ./tests && flake8"
+lint = "isort commons tests && black -S commons tests && flake8"
 test = "pytest -s -x -vv"
-sast = "bandit -r ./commons"
+sast = "bandit -r commons"
 
 [build-system]
 requires = ["poetry-core"]

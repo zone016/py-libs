@@ -11,28 +11,16 @@ python = "^3.10"
 rich = "^13.7.0"
 
 [tool.poetry.group.dev.dependencies]
-bandit = "^1.7.7"
 pytest = "^8.0.1"
-isort = "^5.13.2"
-pytest-cov = "^4.1.0"
-black = "^24.3.0"
 taskipy = "^1.12.2"
-flake8 = "^7.0.0"
 
 [tool.pytest.ini_options]
 pythonpath = "."
 
-[tool.black]
-line-length = 79
-
-[tool.isort]
-profile = "black"
-line_length = 79
-
 [tool.taskipy.tasks]
-lint = "isort ./printer ./tests && black -S ./printer ./tests && flake8"
+lint = "ruff check ./printer ./printer"
+format = "black ./printer ./printer"
 test = "pytest -s -x -vv"
-sast = "bandit -r ./printer"
 
 [build-system]
 requires = ["poetry-core"]

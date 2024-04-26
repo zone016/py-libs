@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "commons"
-version = "0.2.0"
+version = "0.3.0"
 description = "The core types for other Área 16 libraries."
 authors = [
     "3B853B <3b853b@pm.me>",

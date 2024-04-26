@@ -11,28 +11,21 @@ python = "^3.10"
 commons = {git = "https://github.com/zone016/py-libs.git", subdirectory = "commons"}
 
 [tool.poetry.group.dev.dependencies]
-bandit = "^1.7.7"
 pytest = "^8.0.1"
-isort = "^5.13.2"
-pytest-cov = "^4.1.0"
 black = "^24.2.0"
 taskipy = "^1.12.2"
-flake8 = "^7.0.0"
+ruff = "^0.4.2"
 
 [tool.pytest.ini_options]
 pythonpath = "."
 
-[tool.black]
+[tool.ruff]
 line-length = 79
 
-[tool.isort]
-profile = "black"
-line_length = 79
-
 [tool.taskipy.tasks]
-lint = "isort ./py_adb ./tests && black -S ./py_adb ./tests && flake8"
+lint = "ruff check ./py_adb ./tests"
+format = "black ./py_adb ./tests"
 test = "pytest -s -x -vv"
-sast = "bandit -r ./py_adb"
 
 [build-system]
 requires = ["poetry-core"]

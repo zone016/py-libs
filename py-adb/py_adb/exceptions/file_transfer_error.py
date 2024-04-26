@@ -4,5 +4,5 @@ class FileTransferError(Exception):
         self.from_path = from_path
 
         super().__init__(
-            f'Unable to transfer file from {from_path} to {destination_path}.'
+            f"Unable to transfer file from {from_path} to {destination_path}."
         )

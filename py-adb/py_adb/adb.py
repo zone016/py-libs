@@ -15,7 +15,7 @@ from .exceptions import (
 
 
 class Adb:
-    BINARY_NAME = 'adb.exe' if os.name == 'nt' else 'adb'
+    BINARY_NAME = "adb.exe" if os.name == "nt" else "adb"
     BINARY_PATH = None
 
     def __init__(self):
@@ -48,7 +48,7 @@ class Adb:
         :param package: The package name of the app to uninstall.
         :return: True if the app was successfully uninstalled, False otherwise.
         """
-        command = ['-s', device, 'uninstall', package]
+        command = ["-s", device, "uninstall", package]
         result = self._run_command(command)
 
         return result.exit_code == 0
@@ -69,7 +69,7 @@ class Adb:
             if not Path(package).is_file():
                 raise FileNotFoundError(package)
 
-        command = ['-s', device, 'install-multiple', '-r'] + packages
+        command = ["-s", device, "install-multiple", "-r"] + packages
         result = self._run_command(command)
 
         return result.exit_code == 0
@@ -89,14 +89,12 @@ class Adb:
         if not Path(package).is_file():
             raise FileNotFoundError(package)
 
-        command = ['-s', device, 'install', package]
+        command = ["-s", device, "install", package]
         result = self._run_command(command)
 
         return result.exit_code == 0
 
-    def get_package_artifacts(
-        self, device: str, package_name: str
-    ) -> List[str] | None:
+    def get_package_artifacts(self, device: str, package_name: str) -> List[str] | None:
         """
         Retrieves the application artifacts of a specified package on the
         designated device.
@@ -109,8 +107,8 @@ class Adb:
         :return: A list of application artifacts associated with the package,
             or None if the command fails or no artifacts are found.
         """
-        command = ['shell', 'pm', 'path', package_name]
-        result = self._run_command(['-s', device] + command)
+        command = ["shell", "pm", "path", package_name]
+        result = self._run_command(["-s", device] + command)
 
         if result.exit_code != 0 or not result.stdout:
             return None
@@ -119,14 +117,12 @@ class Adb:
         for line in result.stdout:
             if not line:
                 continue
-            artifacts.append(line.replace('package:', ''))
+            artifacts.append(line.replace("package:", ""))
 
         return artifacts
 
     def pidof(self, device: str, package_name: str) -> int:
-        result = self._run_command(
-            ['-s', device, 'shell', 'pidof', package_name]
-        )
+        result = self._run_command(["-s", device, "shell", "pidof", package_name])
 
         if not result.stdout or len(result.stdout) == 0:
             return 0
@@ -144,21 +140,21 @@ class Adb:
         :return: A list of device identifiers if successful,
                  otherwise an empty list.
         """
-        result = self._run_command(['devices'])
+        result = self._run_command(["devices"])
         if result.exit_code != 0 or not result.stdout:
             return []
 
         return [
-            line.split('\t')[0]
+            line.split("\t")[0]
             for line in result.stdout
             if line.strip() and "List of devices attached" not in line
         ]
 
     def get_abi(self, device: str) -> str:
-        command = ['-s', device, 'shell', 'getprop', 'ro.product.cpu.abi']
+        command = ["-s", device, "shell", "getprop", "ro.product.cpu.abi"]
         result = self._run_command(command)
         if result.exit_code != 0 or not result.stdout:
-            return ''
+            return ""
 
         return result.stdout[0].strip()
 
@@ -175,15 +171,15 @@ class Adb:
 
         result = self._run_command(
             [
-                '-s',
+                "-s",
                 device,
-                'shell',
-                'monkey',
-                '-p',
+                "shell",
+                "monkey",
+                "-p",
                 package_name,
-                '-c',
-                'android.intent.category.LAUNCHER',
-                '1',
+                "-c",
+                "android.intent.category.LAUNCHER",
+                "1",
             ]
         )
 
@@ -199,33 +195,31 @@ class Adb:
             raise DeviceIsNotRooted(device)
 
         command = (
-            ['-s', device, 'shell', 'su', '0', 'kill', str(pid)]
+            ["-s", device, "shell", "su", "0", "kill", str(pid)]
             if as_root
-            else ['-s', device, 'shell', 'kill', str(pid)]
+            else ["-s", device, "shell", "kill", str(pid)]
         )
 
         result = self._run_command(command)
-        if result.stdout and 'No such process' not in result.stdout:
+        if result.stdout and "No such process" not in result.stdout:
             return False
 
         return result.exit_code == 0
 
     def file_exists(self, device: str, file_path: str) -> bool:
-        result = self._run_command(['-s', device, 'shell', 'file', file_path])
+        result = self._run_command(["-s", device, "shell", "file", file_path])
         return result.exit_code == 0
 
     def is_rooted(self, device: str) -> bool:
-        result = self._run_command(['-s', device, 'shell', 'su', '0', 'id'])
+        result = self._run_command(["-s", device, "shell", "su", "0", "id"])
 
         if result.exit_code != 0 or len(result.stdout) == 0:
             return False
 
-        return 'uid=0(root)' in result.stdout[0]
+        return "uid=0(root)" in result.stdout[0]
 
     def pgrep(self, device: str, process_name: str) -> List[int]:
-        result = self._run_command(
-            ['-s', device, 'shell', 'pgrep', process_name]
-        )
+        result = self._run_command(["-s", device, "shell", "pgrep", process_name])
 
         if result.exit_code != 0:
             return []
@@ -249,23 +243,21 @@ class Adb:
         provided package name. Returns an empty list if the command fails or
         no matching package is found.
         """
-        command = ['shell', 'pm', 'list', 'packages', pattern]
-        result = self._run_command(['-s', device] + command)
+        command = ["shell", "pm", "list", "packages", pattern]
+        result = self._run_command(["-s", device] + command)
 
         if result.exit_code != 0 or not result.stdout:
             return []
 
         packages = [
-            line.replace('package:', '').strip()
+            line.replace("package:", "").strip()
             for line in result.stdout
-            if line.startswith('package:')
+            if line.startswith("package:")
         ]
 
         return packages
 
-    def get_apps(
-        self, device: str, include_system_apps: bool = False
-    ) -> List[str]:
+    def get_apps(self, device: str, include_system_apps: bool = False) -> List[str]:
         """
         Retrieves a list of installed applications on the specified device.
 
@@ -280,16 +272,16 @@ class Adb:
             installed application. Returns an empty list if the command
             fails or if no apps are found.
         """
-        command = ['shell', 'pm', 'list', 'packages']
+        command = ["shell", "pm", "list", "packages"]
         if not include_system_apps:
-            command.append('-3')
+            command.append("-3")
 
-        result = self._run_command(['-s', device] + command)
+        result = self._run_command(["-s", device] + command)
         if result.exit_code != 0 or not result.stdout:
             return []
 
         apps = [
-            line.replace('package:', '').strip()
+            line.replace("package:", "").strip()
             for line in result.stdout
             if line.strip()
         ]
@@ -332,19 +324,19 @@ class Adb:
 
         if not overwrite:
             check_cmd = [
-                'shell',
-                'test',
-                '-e',
+                "shell",
+                "test",
+                "-e",
                 destination_path,
-                '&&',
-                'echo',
-                'exists',
+                "&&",
+                "echo",
+                "exists",
             ]
-            result = self._run_command(['-s', device] + check_cmd)
-            if result.stdout and 'exists' in result.stdout:
+            result = self._run_command(["-s", device] + check_cmd)
+            if result.stdout and "exists" in result.stdout:
                 raise FileExistsError()
 
-        push_cmd = ['-s', device, 'push', origin_file_path, destination_path]
+        push_cmd = ["-s", device, "push", origin_file_path, destination_path]
         result = self._run_command(push_cmd)
         if result.exit_code != 0:
             raise FileTransferError(origin_file_path, destination_path)
@@ -381,32 +373,29 @@ class Adb:
         overwrite behavior.
         """
         check_cmd = [
-            'shell',
-            'test',
-            '-e',
+            "shell",
+            "test",
+            "-e",
             remote_file_path,
-            '&&',
-            'echo',
-            'exists',
+            "&&",
+            "echo",
+            "exists",
         ]
-        result = self._run_command(['-s', device] + check_cmd)
-        if not result.stdout or 'exists' not in result.stdout:
+        result = self._run_command(["-s", device] + check_cmd)
+        if not result.stdout or "exists" not in result.stdout:
             raise FileNotFoundError()
 
         if not overwrite and os.path.exists(local_path):
             raise FileExistsError(
-                f'Local file {local_path} already exists'
-                f'and overwrite is False.'
+                f"Local file {local_path} already exists" f"and overwrite is False."
             )
 
-        pull_cmd = ['-s', device, 'pull', remote_file_path, local_path]
+        pull_cmd = ["-s", device, "pull", remote_file_path, local_path]
         result = self._run_command(pull_cmd)
         if result.exit_code != 0:
             raise FileTransferError(remote_file_path, local_path)
 
-    def _run_command(
-        self, commands: List[str], timeout: int = None
-    ) -> CommandResult:
+    def _run_command(self, commands: List[str], timeout: int = None) -> CommandResult:
         """
         Executes ADB commands.
 
@@ -415,7 +404,7 @@ class Adb:
         :return: A CommandResult object containing the execution details.
         """
         if not all(isinstance(command, str) for command in commands):
-            raise ValueError('Every command must be a string')
+            raise ValueError("Every command must be a string")
 
         args = [self.BINARY_PATH] + commands
         try:
@@ -444,7 +433,7 @@ class Adb:
         :param binary_name: Name of the binary to search for.
         :return: List of full paths where the binary was found.
         """
-        paths = os.getenv('PATH').split(os.pathsep)
+        paths = os.getenv("PATH").split(os.pathsep)
         found_paths = []
 
         for path in paths:

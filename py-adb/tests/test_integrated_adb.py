@@ -8,9 +8,7 @@ from unittest import TestCase
 from py_adb import Adb
 
 
-@unittest.skipIf(
-    not Adb._is_adb_available(), 'Only run if adb is in fact available.'
-)
+@unittest.skipIf(not Adb._is_adb_available(), "Only run if adb is in fact available.")
 class TestIntegratedAdb(TestCase):
     def test_device_listing_dynamic(self):
         adb = Adb()
@@ -25,13 +23,13 @@ class TestIntegratedAdb(TestCase):
             return
 
         device = devices[0]
-        packages = adb.search_package(device, 'a')
+        packages = adb.search_package(device, "a")
         self.assertTrue(len(packages) > 1)
         package = packages[0]
-        print(f'Package: {package}')
+        print(f"Package: {package}")
 
         artifacts = adb.get_package_artifacts(device, package)
-        print(f'Artifact(s): {artifacts}')
+        print(f"Artifact(s): {artifacts}")
         self.assertTrue(len(artifacts) >= 1)
 
     def test_device_app_listing_dynamic(self):
@@ -58,7 +56,7 @@ class TestIntegratedAdb(TestCase):
 
         file_name = Path(origin_path).name
 
-        destination_path = f'/data/local/tmp/{file_name}'
+        destination_path = f"/data/local/tmp/{file_name}"
         adb.push(device, origin_path, destination_path)
         adb.pull(device, destination_path, file_name)
 
@@ -71,18 +69,17 @@ class TestIntegratedAdb(TestCase):
 class TestAppManagement(TestCase):
     @unittest.skipUnless(
         (
-                Adb._is_adb_available()
-                and len(Adb().get_devices()) > 1
-                and len(Adb().search_package(Adb().get_devices()[0], 'whatsapp'))
-                >= 1
+            Adb._is_adb_available()
+            and len(Adb().get_devices()) > 1
+            and len(Adb().search_package(Adb().get_devices()[0], "whatsapp")) >= 1
         ),
-        'Only run if adb is in fact available and WhatsApp is installed.',
+        "Only run if adb is in fact available and WhatsApp is installed.",
     )
     def test_uninstall_and_install_whatsapp(self):
         adb = Adb()
         device = adb.get_devices()[0]
 
-        apps = adb.search_package(device, 'whatsapp')
+        apps = adb.search_package(device, "whatsapp")
         self.assertTrue(len(apps) == 1)
 
         whatsapp = apps[0]
@@ -97,7 +94,7 @@ class TestAppManagement(TestCase):
         is_uninstalled = adb.uninstall_package(device, whatsapp)
         self.assertTrue(is_uninstalled)
 
-        apps = adb.search_package(device, 'whatsapp')
+        apps = adb.search_package(device, "whatsapp")
         self.assertTrue(len(apps) == 0)
 
         if len(whatsapp_artifacts) == 1:
@@ -114,7 +111,7 @@ class TestAppManagement(TestCase):
             is_installed = adb.install_split_package(device, packages)
             self.assertTrue(is_installed)
 
-        apps = adb.search_package(device, 'whatsapp')
+        apps = adb.search_package(device, "whatsapp")
         self.assertTrue(len(apps) == 1)
 
         shutil.rmtree(output)
@@ -123,36 +120,35 @@ class TestAppManagement(TestCase):
         adb = Adb()
         device = adb.get_devices()[0]
 
-        pids = adb.pgrep(device, 'a')
+        pids = adb.pgrep(device, "a")
         self.assertTrue(len(pids) > 1)
 
     @unittest.skipUnless(
         (
-                Adb._is_adb_available()
-                and len(Adb().get_devices()) > 0
-                and len(Adb().search_package(Adb().get_devices()[0], 'chrome'))
-                == 1
-                and Adb().file_exists(Adb().get_devices()[0], '/system/xbin/su')
+            Adb._is_adb_available()
+            and len(Adb().get_devices()) > 0
+            and len(Adb().search_package(Adb().get_devices()[0], "chrome")) == 1
+            and Adb().file_exists(Adb().get_devices()[0], "/system/xbin/su")
         ),
-        'Only run if adb is in fact available and Chrome is installed.',
+        "Only run if adb is in fact available and Chrome is installed.",
     )
     def test_spawn_and_kill(self):
         adb = Adb()
         device = adb.get_devices()[0]
 
-        chrome_pid = adb.pidof(device, 'com.android.chrome')
+        chrome_pid = adb.pidof(device, "com.android.chrome")
         if chrome_pid != 0:
             is_chrome_killed = adb.kill(device, chrome_pid, True)
             self.assertTrue(is_chrome_killed)
 
-        chrome_pid = adb.spawn(device, 'com.android.chrome')
+        chrome_pid = adb.spawn(device, "com.android.chrome")
         self.assertFalse(0, chrome_pid)
         is_chrome_killed = adb.kill(device, chrome_pid, True)
         self.assertTrue(is_chrome_killed)
 
     @unittest.skipUnless(
-        Adb().file_exists(Adb().get_devices()[0], '/system/xbin/su'),
-        'Emulator does not have su executable',
+        Adb().file_exists(Adb().get_devices()[0], "/system/xbin/su"),
+        "Emulator does not have su executable",
     )
     def test_root_detection(self):
         adb = Adb()
